@@ -15,10 +15,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     } else {
         // Haszujemy hasło
         $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-        
+        $target_dir = "./storage/";
         if (isset($_FILES['avatar']) && $_FILES['avatar']['error'] == 0) {
             // Określenie ścieżki folderu docelowego
-            $target_dir = "./storage/";
+           
             
             // Ścieżka pliku docelowego
             $target_file = $target_dir . basename($username . "_" . $_FILES['avatar']['name']);
@@ -34,8 +34,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             }
         } else {
             // Jeśli plik nie został wysłany, generujemy domyślny avatar z DiceBear API
-            $avatar_url = "https://api.dicebear.com/9.x/identicon/svg?seed=" . urlencode($username);
+            $template_avatar=file_get_contents("https://api.dicebear.com/9.x/identicon/svg?seed=" . urlencode($username));
+            
+            $target_file = $target_dir . basename($username . "_avatar.svg");
+                echo $target_file;
+            
+            $target_folder = file_put_contents($target_file,$template_avatar); 
+            $avatar_url=$target_file;
+            if($target_folder)
+            {
+
+            }else
+            {
+
+            }
            
+
         }
 
         // Dodajemy nowego użytkownika do bazy z avatar
@@ -43,7 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         
         if ($conn->query($sql) === TRUE) {
             // Po pomyślnym dodaniu, przekierowanie do logowania
-            header("Location: login.php");
+             header("Location: login.php");
         } else {
             echo "Błąd: " . $conn->error;
         }
